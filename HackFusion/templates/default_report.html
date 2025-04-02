@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .metadata {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+        .finding {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .finding h3 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        .severity {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .critical { background-color: #ff4444; color: white; }
+        .high { background-color: #ff8800; color: white; }
+        .medium { background-color: #ffbb33; color: black; }
+        .low { background-color: #00C851; color: white; }
+        .info { background-color: #33b5e5; color: white; }
+        .risk-matrix {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .risk-matrix td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        .evidence {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-left: 3px solid #3498db;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ title }}</h1>
+        <p>Generated on {{ date }}</p>
+    </div>
+
+    <div class="metadata">
+        <h2>Assessment Details</h2>
+        <p><strong>Client:</strong> {{ client }}</p>
+        <p><strong>Scope:</strong> {{ scope }}</p>
+    </div>
+
+    <div class="section">
+        <h2>Executive Summary</h2>
+        {{ summary|safe }}
+    </div>
+
+    {% if risk_matrix %}
+    <div class="section">
+        <h2>Risk Matrix</h2>
+        <table class="risk-matrix">
+            <tr>
+                <th></th>
+                {% for level in risk_matrix.likelihood_levels %}
+                <th>{{ level }}</th>
+                {% endfor %}
+            </tr>
+            {% for impact in range(4, -1, -1) %}
+            <tr>
+                <th>{{ risk_matrix.impact_levels[impact] }}</th>
+                {% for likelihood in range(5) %}
+                <td>
+                    {% if risk_matrix.matrix[impact][likelihood] > 0 %}
+                    {{ risk_matrix.matrix[impact][likelihood] }}
+                    {% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% endif %}
+
+    <div class="section">
+        <h2>Detailed Findings</h2>
+        {% for finding in findings %}
+        <div class="finding">
+            <h3>{{ finding.title }}</h3>
+            <span class="severity {{ finding.severity|lower }}">{{ finding.severity }}</span>
+            
+            <h4>Description</h4>
+            <p>{{ finding.description }}</p>
+
+            <h4>Impact</h4>
+            <p>Impact Level: {{ finding.impact }}/5</p>
+            <p>Likelihood: {{ finding.likelihood }}/5</p>
+
+            <h4>Recommendation</h4>
+            <p>{{ finding.recommendation }}</p>
+
+            {% if finding.evidence %}
+            <h4>Evidence</h4>
+            {% for item in finding.evidence %}
+            <div class="evidence">{{ item }}</div>
+            {% endfor %}
+            {% endif %}
+
+            {% if finding.references %}
+            <h4>References</h4>
+            <ul>
+            {% for ref in finding.references %}
+                <li>{{ ref }}</li>
+            {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
