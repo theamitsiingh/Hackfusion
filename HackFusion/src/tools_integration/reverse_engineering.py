@@ -6,6 +6,7 @@ Handles integration with reverse engineering tools
 import os
 import subprocess
 from typing import Dict, List, Optional, Any
+import glob
 
 class ReverseEngineering:
     """Class for handling reverse engineering tools"""
@@ -17,8 +18,137 @@ class ReverseEngineering:
             config: Configuration dictionary
         """
         self.config = config
-        self.ghidra_path = config.get('ghidra_path', '')
+        
+        # Verify Ghidra installation
+        self.ghidra_path = self._find_ghidra_installation(config.get('ghidra_path', ''))
+        
         self.radare2_path = config.get('radare2_path', 'r2')
+        self.required_tools = [
+            # Static Analysis
+            'radare2', 'ghidra', 'ida', 'hopper', 'cutter', 
+            'rizin', 'binary-ninja', 'retdec', 'snowman', 
+            
+            # Disassemblers
+            'gdb', 'objdump', 'binwalk', 'readelf', 
+            'ndisasm', 'capstone', 'distorm3', 'udis86',
+            
+            # Dynamic Analysis
+            'strace', 'ltrace', 'valgrind', 'pin', 'frida', 
+            'dynamorio', 'qemu', 'wine', 'windbg',
+            
+            # Decompilers
+            'jad', 'jadx', 'dex2jar', 'procyon', 
+            'fernflower', 'cfr', 'krakatau', 
+            
+            # Debugging
+            'windbg', 'x64dbg', 'ollydbg', 'ida', 
+            'gdb-multiarch', 'peda', 'gef', 'lldb',
+            
+            # Malware Analysis
+            'dnspy', 'dotpeek', 'ilspy', 'reflector', 
+            'ida', 'hopper', 'binary-ninja', 
+            
+            # Binary Analysis
+            'angr', 'triton', 'manticore', 'symbolic-execution', 
+            'z3', 'bap', 'qemu', 'pin', 'valgrind',
+            
+            # Emulators and Sandboxes
+            'qemu', 'bochs', 'virtualbox', 'vmware', 
+            'cuckoo', 'sandboxie', 'wine',
+            
+            # Additional Tools
+            'keystone', 'unicorn', 'capstone', 'distorm3', 
+            'binwalk', 'foremost', 'scalpel', 'autopsy', 
+            'volatility', 'rekall', 'bulk_extractor'
+        ]
+        self._check_required_tools()
+
+    def _find_ghidra_installation(self, config_path: str = '') -> str:
+        """Find Ghidra installation path
+
+        Args:
+            config_path: Path provided in configuration
+
+        Returns:
+            str: Path to Ghidra launch script or empty string if not found
+        """
+        # Potential Ghidra installation paths
+        potential_paths = [
+            config_path,  # User-configured path
+            '/opt/ghidra/ghidra_*',  # Common installation in /opt
+            os.path.expanduser('~/ghidra_*'),  # User's home directory
+            '/usr/local/ghidra_*',  # Local installation
+            '/usr/share/ghidra_*'   # System-wide installation
+        ]
+
+        # Look for Ghidra launch script
+        for path_pattern in potential_paths:
+            try:
+                # Use glob to find matching directories
+                matching_paths = glob.glob(path_pattern)
+                
+                for path in matching_paths:
+                    # Check for launch script
+                    launch_script = os.path.join(path, 'ghidraRun')
+                    if os.path.exists(launch_script) and os.access(launch_script, os.X_OK):
+                        return launch_script
+            except Exception:
+                pass
+
+        # Check system PATH
+        try:
+            result = subprocess.run(['which', 'ghidra'], capture_output=True, text=True)
+            if result.returncode == 0:
+                return result.stdout.strip()
+        except Exception:
+            pass
+
+        return ''
+
+    def _verify_ghidra_installation(self) -> bool:
+        """Verify Ghidra installation
+
+        Returns:
+            bool: True if Ghidra is installed and working, False otherwise
+        """
+        if not self.ghidra_path:
+            print("[yellow]Ghidra installation not found.[/yellow]")
+            return False
+
+        try:
+            # Run Ghidra with a simple version check
+            version_cmd = [self.ghidra_path, '-version']
+            result = subprocess.run(version_cmd, capture_output=True, text=True, timeout=10)
+            
+            if result.returncode == 0:
+                print(f"[green]Ghidra found at: {self.ghidra_path}[/green]")
+                return True
+            else:
+                print(f"[yellow]Ghidra version check failed: {result.stderr}[/yellow]")
+                return False
+        except subprocess.TimeoutExpired:
+            print("[yellow]Ghidra version check timed out.[/yellow]")
+            return False
+        except Exception as e:
+            print(f"[yellow]Error verifying Ghidra: {e}[/yellow]")
+            return False
+
+    def _check_required_tools(self):
+        """Check required reverse engineering tools"""
+        missing_tools = []
+        
+        for tool in self.required_tools:
+            try:
+                result = subprocess.run(['which', tool], capture_output=True, text=True)
+                if result.returncode != 0:
+                    missing_tools.append(tool)
+            except Exception:
+                missing_tools.append(tool)
+        
+        if missing_tools:
+            print(f"[yellow]Missing reverse engineering tools: {', '.join(missing_tools)}[/yellow]")
+            print("[yellow]Some reverse engineering features may be limited.[/yellow]")
+            print("[yellow]Run the tool installer from the main menu to install missing tools.[/yellow]")
 
     def analyze_with_ghidra(self, binary_path: str, project_name: str) -> Dict[str, Any]:
         """Analyze a binary using Ghidra
@@ -30,12 +160,20 @@ class ReverseEngineering:
         Returns:
             Dict containing analysis results or error
         """
+        # First, verify Ghidra installation
+        if not self._verify_ghidra_installation():
+            return {
+                'error': 'Ghidra is not properly installed. Please install Ghidra and configure its path.',
+                'suggested_actions': [
+                    'Install Ghidra from official website',
+                    'Add Ghidra to system PATH',
+                    'Configure Ghidra path in HackFusion settings'
+                ]
+            }
+
         try:
             if not os.path.exists(binary_path):
                 return {'error': f'Binary file not found: {binary_path}'}
-
-            if not self.ghidra_path:
-                return {'error': 'Ghidra path not configured'}
 
             cmd = [
                 self.ghidra_path,

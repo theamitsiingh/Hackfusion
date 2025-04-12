@@ -6,10 +6,52 @@ import subprocess
 import json
 from typing import Dict, Any
 import os
+from src.utils.tool_decorators import tool_loading_animation
 
 class WebApplicationAnalysis:
     """Web application analysis tools"""
     
+    def __init__(self):
+        """Initialize web application analysis tools"""
+        self.required_tools = [
+            # Web Vulnerability Scanners
+            'nikto', 'w3af', 'zaproxy', 'burpsuite',
+            
+            # Injection Tools
+            'sqlmap', 'xsstrike', 'xsser',
+            
+            # Brute Force Tools
+            'dirb', 'gobuster',
+            
+            # CMS Scanners
+            'wpscan', 'cmsmap', 'cmseek',
+            
+            # SSL/TLS Scanners
+            'sslyze',
+            
+            # Additional Web Tools
+            'skipfish', 'fierce', 'whatweb', 'wafw00f'
+        ]
+        self._check_required_tools()
+    
+    def _check_required_tools(self):
+        """Check required web application tools"""
+        missing_tools = []
+        
+        for tool in self.required_tools:
+            try:
+                result = subprocess.run(['which', tool], capture_output=True, text=True)
+                if result.returncode != 0:
+                    missing_tools.append(tool)
+            except Exception:
+                missing_tools.append(tool)
+        
+        if missing_tools:
+            print(f"[yellow]Missing web application tools: {', '.join(missing_tools)}[/yellow]")
+            print("[yellow]Some web application analysis features may be limited.[/yellow]")
+            print("[yellow]Run the tool installer from the main menu to install missing tools.[/yellow]")
+            
+    @tool_loading_animation
     def run_scan(self, target: str, params: Dict[str, Any] = None) -> Dict[str, Any]:
         """Run web application security scan"""
         results = {}
@@ -100,6 +142,7 @@ class WebApplicationAnalysis:
         except Exception:
             return False
             
+    @tool_loading_animation
     def run_xss_scan(self, target: str) -> Dict[str, Any]:
         """Run XSS vulnerability scan"""
         try:
@@ -112,6 +155,7 @@ class WebApplicationAnalysis:
         except Exception as e:
             return {'error': f'XSS scan failed: {str(e)}'}
             
+    @tool_loading_animation
     def run_ssl_scan(self, target: str) -> Dict[str, Any]:
         """Run SSL/TLS vulnerability scan"""
         try:
@@ -124,6 +168,7 @@ class WebApplicationAnalysis:
         except Exception as e:
             return {'error': f'SSL scan failed: {str(e)}'}
             
+    @tool_loading_animation
     def run_cms_scan(self, target: str) -> Dict[str, Any]:
         """Run CMS vulnerability scan"""
         results = {}

@@ -27,6 +27,7 @@ from src.tools_integration.reverse_engineering import ReverseEngineering
 from src.tools_integration.exploitation import ExploitationTools
 from src.tools_integration.forensics import Forensics
 from src.tools_integration.reporting import ReportGenerator
+from src.tools_integration.network_attacks import NetworkAttacks
 from src.ai_assistant import AIAssistant
 
 class Menu:
@@ -57,7 +58,7 @@ class Menu:
         try:
             print("Initializing AI Assistant...")
             print(f"OPENAI_API_KEY present: {bool(os.getenv('OPENAI_API_KEY'))}")
-            print(f"OPENAI_API_KEY value: {os.getenv('OPENAI_API_KEY')[:10]}...")
+            print(f"OPENAI_API_KEY value: {os.getenv('OPENAI_API_KEY')[:10]}..." if os.getenv('OPENAI_API_KEY') else "No OPENAI_API_KEY set")
             self.ai_assistant = AIAssistant()
             self.has_ai = True
             print("AI Assistant initialized successfully")
@@ -83,6 +84,7 @@ class Menu:
             self.exploitation = ExploitationTools()
             self.forensics = Forensics()
             self.reporting = ReportGenerator()
+            self.network_attacks = NetworkAttacks()
         except Exception as e:
             self.console.print(f"[red]Warning: Some modules failed to initialize: {e}[/red]")
             
@@ -119,6 +121,7 @@ class Menu:
         table.add_row("7", "⚔️ Exploitation Tools")
         table.add_row("8", "🔎 Forensics")
         table.add_row("9", "📊 Report Generation")
+        table.add_row("10", "🌐 Network Attacks")
         table.add_row("T", "🛠️ Manage Kali Tools")
         table.add_row("0", "❌ Exit")
         
@@ -341,6 +344,79 @@ class Menu:
             print("Full traceback:")
             traceback.print_exc()
         
+    def password_menu(self):
+        """Password attacks menu"""
+        while True:
+            self.console.print("\n[cyan]Password Attacks[/cyan]")
+            self.console.print("-" * 30)
+            self.console.print("[cyan]1.[/cyan] John the Ripper")
+            self.console.print("[cyan]2.[/cyan] Hydra")
+            self.console.print("[cyan]3.[/cyan] Medusa")
+            self.console.print("[cyan]4.[/cyan] Hashcat")
+            self.console.print("[cyan]5.[/cyan] Ncrack")
+            self.console.print("[cyan]6.[/cyan] Crowbar")
+            self.console.print("[cyan]7.[/cyan] Dictionary Attack")
+            self.console.print("[cyan]0.[/cyan] Back")
+            
+            choice = Prompt.ask("\n[cyan]Enter choice[/cyan]")
+            
+            try:
+                if choice == "1":  # John the Ripper
+                    hash_type = Prompt.ask("\n[cyan]Enter hash type (e.g., MD5, SHA1)[/cyan]")
+                    hash_file = Prompt.ask("\n[cyan]Enter path to hash file[/cyan]")
+                    result = self.password.run_john(hash_file, hash_type)
+                
+                elif choice == "2":  # Hydra
+                    target = Prompt.ask("\n[cyan]Enter target host[/cyan]")
+                    service = Prompt.ask("\n[cyan]Enter service (ssh, ftp, etc.)[/cyan]")
+                    result = self.password.run_hydra(target, service)
+                
+                elif choice == "3":  # Medusa
+                    target = Prompt.ask("\n[cyan]Enter target host[/cyan]")
+                    service = Prompt.ask("\n[cyan]Enter service (ssh, ftp, etc.)[/cyan]")
+                    result = self.password.run_medusa(target, service)
+                
+                elif choice == "4":  # Hashcat
+                    hash_file = Prompt.ask("\n[cyan]Enter path to hash file[/cyan]")
+                    hash_type = Prompt.ask("\n[cyan]Enter hash type (e.g., MD5, SHA1)[/cyan]")
+                    result = self.password.run_hashcat(hash_file, hash_type)
+                
+                elif choice == "5":  # Ncrack
+                    target = Prompt.ask("\n[cyan]Enter target host[/cyan]")
+                    service = Prompt.ask("\n[cyan]Enter service (ssh, ftp, etc.)[/cyan]")
+                    result = self.password.run_ncrack(target, service)
+                
+                elif choice == "6":  # Crowbar
+                    target = Prompt.ask("\n[cyan]Enter target host[/cyan]")
+                    service = Prompt.ask("\n[cyan]Enter service (ssh, rdp, etc.)[/cyan]")
+                    result = self.password.run_crowbar(target, service)
+                
+                elif choice == "7":  # Dictionary Attack
+                    wordlist = Prompt.ask("\n[cyan]Enter path to wordlist[/cyan]")
+                    target = Prompt.ask("\n[cyan]Enter target[/cyan]")
+                    result = self.password.run_dictionary_attack(target, wordlist)
+                
+                elif choice == "0":
+                    break
+                
+                else:
+                    self.console.print("[red]Invalid choice[/red]")
+                    continue
+
+                # Display results
+                self.console.print("\n[cyan]Attack Results:[/cyan]")
+                if 'result' in result:
+                    self.console.print(result['result'])
+                elif 'error' in result:
+                    self.console.print(f"[red]Error: {result['error']}[/red]")
+                else:
+                    self.console.print("[yellow]No results found.[/yellow]")
+                
+            except Exception as e:
+                self.console.print(f"\n[red]Error:[/red] {e}")
+                print("Full traceback:")
+                traceback.print_exc()
+                
     def info_gathering_menu(self):
         """Information gathering menu"""
         while True:
@@ -357,7 +433,12 @@ class Menu:
                 try:
                     result = self.info_gathering.run_nmap_scan(target)
                     self.console.print("\n[cyan]Scan Results:[/cyan]")
-                    self.console.print(result['result'])
+                    if 'result' in result:
+                        self.console.print(result['result'])
+                    elif 'error' in result:
+                        self.console.print(f"[red]Error: {result['error']}[/red]")
+                    else:
+                        self.console.print("[yellow]No results found.[/yellow]")
                 except Exception as e:
                     self.console.print(f"\n[red]Error:[/red] {e}")
                     print("Full traceback:")
@@ -368,7 +449,12 @@ class Menu:
                 try:
                     result = self.info_gathering.run_whois_lookup(domain)
                     self.console.print("\n[cyan]WHOIS Results:[/cyan]")
-                    self.console.print(result['result'])
+                    if 'result' in result:
+                        self.console.print(result['result'])
+                    elif 'error' in result:
+                        self.console.print(f"[red]Error: {result['error']}[/red]")
+                    else:
+                        self.console.print("[yellow]No WHOIS results found.[/yellow]")
                 except Exception as e:
                     self.console.print(f"\n[red]Error:[/red] {e}")
                     print("Full traceback:")
@@ -387,19 +473,28 @@ class Menu:
             
             choice = Prompt.ask("\n[cyan]Enter choice[/cyan]")
             
-            if choice == "1":
-                target = Prompt.ask("\n[cyan]Enter target URL[/cyan]")
-                try:
-                    result = self.vuln_analysis.run_scan(target)
-                    self.console.print("\n[cyan]Scan Results:[/cyan]")
-                    self.console.print(result['result'])
-                except Exception as e:
-                    self.console.print(f"\n[red]Error:[/red] {e}")
-                    print("Full traceback:")
-                    traceback.print_exc()
-                    
-            elif choice == "0":
+            if choice == "0":
                 break
+            elif choice == "1":
+                target = Prompt.ask("\n[cyan]Enter target URL[/cyan]")
+                
+                # Initialize vulnerability analysis
+                self.vuln_analysis = VulnerabilityAnalysis()
+                
+                # Use the correct method name: run_vuln_scan instead of run_scan
+                result = self.vuln_analysis.run_vuln_scan(target)
+                
+                # Display results
+                if 'error' in result:
+                    self.console.print(f"[red]Error: {result['error']}[/red]")
+                else:
+                    self.console.print("[green]Vulnerability Scan Results:[/green]")
+                    self.console.print(result['output'])
+                    
+                input("\nPress Enter to continue...")
+            else:
+                self.console.print("[red]Invalid choice. Please try again.[/red]")
+                input("\nPress Enter to continue...")
                 
     def web_analysis_menu(self):
         """Web application analysis menu"""
@@ -416,31 +511,12 @@ class Menu:
                 try:
                     result = self.web_analysis.run_scan(target)
                     self.console.print("\n[cyan]Scan Results:[/cyan]")
-                    self.console.print(result['result'])
-                except Exception as e:
-                    self.console.print(f"\n[red]Error:[/red] {e}")
-                    print("Full traceback:")
-                    traceback.print_exc()
-                    
-            elif choice == "0":
-                break
-                
-    def password_menu(self):
-        """Password attacks menu"""
-        while True:
-            self.console.print("\n[cyan]Password Attacks[/cyan]")
-            self.console.print("-" * 30)
-            self.console.print("[cyan]1.[/cyan] Run Password Attack")
-            self.console.print("[cyan]0.[/cyan] Back")
-            
-            choice = Prompt.ask("\n[cyan]Enter choice[/cyan]")
-            
-            if choice == "1":
-                target = Prompt.ask("\n[cyan]Enter target[/cyan]")
-                try:
-                    result = self.password.run_attack(target)
-                    self.console.print("\n[cyan]Attack Results:[/cyan]")
-                    self.console.print(result['result'])
+                    if 'result' in result:
+                        self.console.print(result['result'])
+                    elif 'error' in result:
+                        self.console.print(f"[red]Error: {result['error']}[/red]")
+                    else:
+                        self.console.print("[yellow]No results found.[/yellow]")
                 except Exception as e:
                     self.console.print(f"\n[red]Error:[/red] {e}")
                     print("Full traceback:")
@@ -454,96 +530,285 @@ class Menu:
         while True:
             self.console.print("\n[cyan]Wireless Attacks[/cyan]")
             self.console.print("-" * 30)
-            self.console.print("[cyan]1.[/cyan] Run Wireless Attack")
+            self.console.print("[cyan]1.[/cyan] Aircrack-ng")
+            self.console.print("[cyan]2.[/cyan] Reaver")
+            self.console.print("[cyan]3.[/cyan] Wifite")
+            self.console.print("[cyan]4.[/cyan] Kismet")
+            self.console.print("[cyan]5.[/cyan] WiFi Deauthentication")
+            self.console.print("[cyan]6.[/cyan] Bluetooth Attacks")
+            self.console.print("[cyan]7.[/cyan] GPS Spoofing")
             self.console.print("[cyan]0.[/cyan] Back")
             
             choice = Prompt.ask("\n[cyan]Enter choice[/cyan]")
             
-            if choice == "1":
-                target = Prompt.ask("\n[cyan]Enter target[/cyan]")
-                try:
-                    result = self.wireless.run_attack(target)
-                    self.console.print("\n[cyan]Attack Results:[/cyan]")
+            try:
+                if choice == "1":  # Aircrack-ng
+                    interface = Prompt.ask("\n[cyan]Enter wireless interface (e.g., wlan0)[/cyan]")
+                    result = self.wireless.run_aircrack(interface)
+                
+                elif choice == "2":  # Reaver
+                    bssid = Prompt.ask("\n[cyan]Enter BSSID of target network[/cyan]")
+                    result = self.wireless.run_reaver(bssid)
+                
+                elif choice == "3":  # Wifite
+                    mode = Prompt.ask("\n[cyan]Select mode (WEP/WPA/WPA2)[/cyan]")
+                    result = self.wireless.run_wifite(mode)
+                
+                elif choice == "4":  # Kismet
+                    interface = Prompt.ask("\n[cyan]Enter wireless interface (e.g., wlan0)[/cyan]")
+                    result = self.wireless.run_kismet(interface)
+                
+                elif choice == "5":  # WiFi Deauthentication
+                    target_mac = Prompt.ask("\n[cyan]Enter target MAC address[/cyan]")
+                    ap_mac = Prompt.ask("\n[cyan]Enter Access Point MAC address[/cyan]")
+                    result = self.wireless.run_deauth(target_mac, ap_mac)
+                
+                elif choice == "6":  # Bluetooth Attacks
+                    attack_type = Prompt.ask("\n[cyan]Select Bluetooth attack type (scan/pair/exploit)[/cyan]")
+                    result = self.wireless.run_bluetooth_attack(attack_type)
+                
+                elif choice == "7":  # GPS Spoofing
+                    location = Prompt.ask("\n[cyan]Enter spoofed location (lat,lon)[/cyan]")
+                    result = self.wireless.run_gps_spoof(location)
+                
+                elif choice == "0":
+                    break
+                
+                else:
+                    self.console.print("[red]Invalid choice[/red]")
+                    continue
+
+                # Display results
+                self.console.print("\n[cyan]Wireless Attack Results:[/cyan]")
+                if 'result' in result:
                     self.console.print(result['result'])
-                except Exception as e:
-                    self.console.print(f"\n[red]Error:[/red] {e}")
-                    print("Full traceback:")
-                    traceback.print_exc()
-                    
-            elif choice == "0":
-                break
+                elif 'error' in result:
+                    self.console.print(f"[red]Error: {result['error']}[/red]")
+                else:
+                    self.console.print("[yellow]No results found.[/yellow]")
+                
+            except Exception as e:
+                self.console.print(f"\n[red]Error:[/red] {e}")
+                print("Full traceback:")
+                traceback.print_exc()
                 
     def reverse_menu(self):
         """Reverse engineering menu"""
         while True:
             self.console.print("\n[cyan]Reverse Engineering[/cyan]")
             self.console.print("-" * 30)
-            self.console.print("[cyan]1.[/cyan] Run Reverse Engineering")
+            self.console.print("[cyan]1.[/cyan] Ghidra")
+            self.console.print("[cyan]2.[/cyan] Radare2")
+            self.console.print("[cyan]3.[/cyan] GDB")
+            self.console.print("[cyan]4.[/cyan] IDA Pro")
+            self.console.print("[cyan]5.[/cyan] Binary Analysis")
+            self.console.print("[cyan]6.[/cyan] Memory Dump Analysis")
+            self.console.print("[cyan]7.[/cyan] String Extraction")
             self.console.print("[cyan]0.[/cyan] Back")
             
             choice = Prompt.ask("\n[cyan]Enter choice[/cyan]")
             
-            if choice == "1":
-                target = Prompt.ask("\n[cyan]Enter target[/cyan]")
-                try:
-                    result = self.reverse.run_reverse_engineering(target)
-                    self.console.print("\n[cyan]Results:[/cyan]")
+            try:
+                if choice == "1":  # Ghidra
+                    binary_path = Prompt.ask("\n[cyan]Enter path to binary file[/cyan]")
+                    project_name = Prompt.ask("\n[cyan]Enter project name[/cyan]")
+                    result = self.reverse.analyze_with_ghidra(binary_path, project_name)
+                
+                elif choice == "2":  # Radare2
+                    binary_path = Prompt.ask("\n[cyan]Enter path to binary file[/cyan]")
+                    commands = Prompt.ask("\n[cyan]Enter Radare2 commands (comma-separated, optional)[/cyan]", default="")
+                    command_list = [cmd.strip() for cmd in commands.split(',')] if commands else None
+                    result = self.reverse.analyze_with_radare2(binary_path, command_list)
+                
+                elif choice == "3":  # GDB
+                    binary_path = Prompt.ask("\n[cyan]Enter path to binary file[/cyan]")
+                    result = self.reverse.run_gdb_analysis(binary_path)
+                
+                elif choice == "4":  # IDA Pro
+                    binary_path = Prompt.ask("\n[cyan]Enter path to binary file[/cyan]")
+                    result = self.reverse.run_ida_analysis(binary_path)
+                
+                elif choice == "5":  # Binary Analysis
+                    binary_path = Prompt.ask("\n[cyan]Enter path to binary file[/cyan]")
+                    analysis_type = Prompt.ask("\n[cyan]Select analysis type (symbols/imports/sections)[/cyan]")
+                    result = self.reverse.run_binary_analysis(binary_path, analysis_type)
+                
+                elif choice == "6":  # Memory Dump Analysis
+                    dump_path = Prompt.ask("\n[cyan]Enter path to memory dump[/cyan]")
+                    profile = Prompt.ask("\n[cyan]Enter memory profile (optional)[/cyan]", default="")
+                    result = self.reverse.analyze_memory_dump(dump_path, profile)
+                
+                elif choice == "7":  # String Extraction
+                    binary_path = Prompt.ask("\n[cyan]Enter path to binary file[/cyan]")
+                    min_length = Prompt.ask("\n[cyan]Minimum string length[/cyan]", default="4")
+                    result = self.reverse.extract_strings(binary_path, int(min_length))
+                
+                elif choice == "0":
+                    break
+                
+                else:
+                    self.console.print("[red]Invalid choice[/red]")
+                    continue
+
+                # Display results
+                self.console.print("\n[cyan]Reverse Engineering Results:[/cyan]")
+                if 'result' in result:
                     self.console.print(result['result'])
-                except Exception as e:
-                    self.console.print(f"\n[red]Error:[/red] {e}")
-                    print("Full traceback:")
-                    traceback.print_exc()
-                    
-            elif choice == "0":
-                break
+                elif 'error' in result:
+                    self.console.print(f"[red]Error: {result['error']}[/red]")
+                else:
+                    self.console.print("[yellow]No results found.[/yellow]")
+                
+            except Exception as e:
+                self.console.print(f"\n[red]Error:[/red] {e}")
+                print("Full traceback:")
+                traceback.print_exc()
                 
     def exploitation_menu(self):
         """Exploitation tools menu"""
         while True:
             self.console.print("\n[cyan]Exploitation Tools[/cyan]")
             self.console.print("-" * 30)
-            self.console.print("[cyan]1.[/cyan] Run Exploitation Tool")
+            self.console.print("[cyan]1.[/cyan] Metasploit Framework")
+            self.console.print("[cyan]2.[/cyan] BeEF")
+            self.console.print("[cyan]3.[/cyan] SQLMap")
+            self.console.print("[cyan]4.[/cyan] Commix")
+            self.console.print("[cyan]5.[/cyan] Empire")
+            self.console.print("[cyan]6.[/cyan] Social Engineering")
+            self.console.print("[cyan]7.[/cyan] Web Exploitation")
             self.console.print("[cyan]0.[/cyan] Back")
             
             choice = Prompt.ask("\n[cyan]Enter choice[/cyan]")
             
-            if choice == "1":
-                target = Prompt.ask("\n[cyan]Enter target[/cyan]")
-                try:
-                    result = self.exploitation.run_exploitation_tool(target)
-                    self.console.print("\n[cyan]Results:[/cyan]")
+            try:
+                if choice == "1":  # Metasploit Framework
+                    target = Prompt.ask("\n[cyan]Enter target IP/hostname[/cyan]")
+                    exploit = Prompt.ask("\n[cyan]Enter exploit module (optional)[/cyan]", default="")
+                    result = self.exploitation.run_metasploit(target, exploit)
+                
+                elif choice == "2":  # BeEF
+                    target = Prompt.ask("\n[cyan]Enter target website[/cyan]")
+                    hook_type = Prompt.ask("\n[cyan]Select hook type (xss/iframe)[/cyan]")
+                    result = self.exploitation.run_beef(target, hook_type)
+                
+                elif choice == "3":  # SQLMap
+                    target = Prompt.ask("\n[cyan]Enter target URL[/cyan]")
+                    database = Prompt.ask("\n[cyan]Target database type (optional)[/cyan]", default="")
+                    result = self.exploitation.run_sqlmap(target, database)
+                
+                elif choice == "4":  # Commix
+                    target = Prompt.ask("\n[cyan]Enter target URL[/cyan]")
+                    command_injection = Prompt.ask("\n[cyan]Enter command to inject (optional)[/cyan]", default="")
+                    result = self.exploitation.run_commix(target, command_injection)
+                
+                elif choice == "5":  # Empire
+                    listener_type = Prompt.ask("\n[cyan]Select listener type (http/https)[/cyan]")
+                    payload = Prompt.ask("\n[cyan]Select payload type[/cyan]")
+                    result = self.exploitation.run_empire(listener_type, payload)
+                
+                elif choice == "6":  # Social Engineering
+                    attack_type = Prompt.ask("\n[cyan]Select attack type (phishing/smishing/vishing)[/cyan]")
+                    target = Prompt.ask("\n[cyan]Enter target (email/phone)[/cyan]")
+                    result = self.exploitation.run_social_engineering(attack_type, target)
+                
+                elif choice == "7":  # Web Exploitation
+                    target = Prompt.ask("\n[cyan]Enter target website[/cyan]")
+                    exploit_type = Prompt.ask("\n[cyan]Select exploit type (xss/csrf/rfi)[/cyan]")
+                    result = self.exploitation.run_web_exploit(target, exploit_type)
+                
+                elif choice == "0":
+                    break
+                
+                else:
+                    self.console.print("[red]Invalid choice[/red]")
+                    continue
+
+                # Display results
+                self.console.print("\n[cyan]Exploitation Results:[/cyan]")
+                if 'result' in result:
                     self.console.print(result['result'])
-                except Exception as e:
-                    self.console.print(f"\n[red]Error:[/red] {e}")
-                    print("Full traceback:")
-                    traceback.print_exc()
-                    
-            elif choice == "0":
-                break
+                elif 'error' in result:
+                    self.console.print(f"[red]Error: {result['error']}[/red]")
+                else:
+                    self.console.print("[yellow]No results found.[/yellow]")
+                
+            except Exception as e:
+                self.console.print(f"\n[red]Error:[/red] {e}")
+                print("Full traceback:")
+                traceback.print_exc()
                 
     def forensics_menu(self):
         """Forensics menu"""
         while True:
             self.console.print("\n[cyan]Forensics[/cyan]")
             self.console.print("-" * 30)
-            self.console.print("[cyan]1.[/cyan] Run Forensics Tool")
+            self.console.print("[cyan]1.[/cyan] Memory Forensics")
+            self.console.print("[cyan]2.[/cyan] Disk Forensics")
+            self.console.print("[cyan]3.[/cyan] File Recovery")
+            self.console.print("[cyan]4.[/cyan] Log Analysis")
+            self.console.print("[cyan]5.[/cyan] Network Forensics")
+            self.console.print("[cyan]6.[/cyan] Malware Analysis")
+            self.console.print("[cyan]7.[/cyan] Evidence Preservation")
             self.console.print("[cyan]0.[/cyan] Back")
             
             choice = Prompt.ask("\n[cyan]Enter choice[/cyan]")
             
-            if choice == "1":
-                target = Prompt.ask("\n[cyan]Enter target[/cyan]")
-                try:
-                    result = self.forensics.run_forensics_tool(target)
-                    self.console.print("\n[cyan]Results:[/cyan]")
+            try:
+                if choice == "1":  # Memory Forensics
+                    dump_path = Prompt.ask("\n[cyan]Enter path to memory dump[/cyan]")
+                    profile = Prompt.ask("\n[cyan]Enter memory profile (optional)[/cyan]", default="")
+                    result = self.forensics.analyze_memory_dump(dump_path, profile)
+                
+                elif choice == "2":  # Disk Forensics
+                    disk_image = Prompt.ask("\n[cyan]Enter path to disk image[/cyan]")
+                    analysis_type = Prompt.ask("\n[cyan]Select analysis type (file_system/partition/carving)[/cyan]")
+                    result = self.forensics.analyze_disk_image(disk_image, analysis_type)
+                
+                elif choice == "3":  # File Recovery
+                    target_dir = Prompt.ask("\n[cyan]Enter directory to recover files from[/cyan]")
+                    file_type = Prompt.ask("\n[cyan]Enter file type to recover (optional)[/cyan]", default="")
+                    result = self.forensics.recover_files(target_dir, file_type)
+                
+                elif choice == "4":  # Log Analysis
+                    log_path = Prompt.ask("\n[cyan]Enter path to log file[/cyan]")
+                    log_type = Prompt.ask("\n[cyan]Select log type (system/auth/network)[/cyan]")
+                    result = self.forensics.analyze_logs(log_path, log_type)
+                
+                elif choice == "5":  # Network Forensics
+                    pcap_file = Prompt.ask("\n[cyan]Enter path to PCAP file[/cyan]")
+                    analysis_type = Prompt.ask("\n[cyan]Select analysis type (traffic/protocol/anomaly)[/cyan]")
+                    result = self.forensics.analyze_network_traffic(pcap_file, analysis_type)
+                
+                elif choice == "6":  # Malware Analysis
+                    sample_path = Prompt.ask("\n[cyan]Enter path to malware sample[/cyan]")
+                    analysis_mode = Prompt.ask("\n[cyan]Select analysis mode (static/dynamic)[/cyan]")
+                    result = self.forensics.analyze_malware(sample_path, analysis_mode)
+                
+                elif choice == "7":  # Evidence Preservation
+                    evidence_path = Prompt.ask("\n[cyan]Enter path to evidence[/cyan]")
+                    evidence_type = Prompt.ask("\n[cyan]Select evidence type (disk/memory/network)[/cyan]")
+                    result = self.forensics.preserve_evidence(evidence_path, evidence_type)
+                
+                elif choice == "0":
+                    break
+                
+                else:
+                    self.console.print("[red]Invalid choice[/red]")
+                    continue
+
+                # Display results
+                self.console.print("\n[cyan]Forensics Results:[/cyan]")
+                if 'result' in result:
                     self.console.print(result['result'])
-                except Exception as e:
-                    self.console.print(f"\n[red]Error:[/red] {e}")
-                    print("Full traceback:")
-                    traceback.print_exc()
-                    
-            elif choice == "0":
-                break
+                elif 'error' in result:
+                    self.console.print(f"[red]Error: {result['error']}[/red]")
+                else:
+                    self.console.print("[yellow]No results found.[/yellow]")
+                
+            except Exception as e:
+                self.console.print(f"\n[red]Error:[/red] {e}")
+                print("Full traceback:")
+                traceback.print_exc()
                 
     def reporting_menu(self):
         """Reporting menu"""
@@ -559,7 +824,12 @@ class Menu:
                 try:
                     result = self.reporting.generate_report()
                     self.console.print("\n[cyan]Report Results:[/cyan]")
-                    self.console.print(result['result'])
+                    if 'result' in result:
+                        self.console.print(result['result'])
+                    elif 'error' in result:
+                        self.console.print(f"[red]Error: {result['error']}[/red]")
+                    else:
+                        self.console.print("[yellow]No results found.[/yellow]")
                 except Exception as e:
                     self.console.print(f"\n[red]Error:[/red] {e}")
                     print("Full traceback:")
@@ -567,6 +837,49 @@ class Menu:
                     
             elif choice == "0":
                 break
+                
+    def network_attacks_menu(self):
+        """Network attacks menu"""
+        while True:
+            self.console.print("\nNetwork Attacks", style="bold cyan")
+            print("------------------------------")
+            print("1. ARP Spoofing")
+            print("0. Back")
+            
+            choice = Prompt.ask("[cyan]Enter choice[/cyan]", default="0")
+            
+            if choice == "0":
+                break
+            elif choice == "1":
+                target_ip = Prompt.ask("[cyan]Enter target IP[/cyan]")
+                gateway_ip = Prompt.ask("[cyan]Enter gateway IP[/cyan]")
+                interface = Prompt.ask("[cyan]Enter network interface (optional, press Enter to auto-detect)[/cyan]", default=None)
+                
+                # Perform ARP spoofing
+                result = self.network_attacks.run_arp_spoof(target_ip, gateway_ip, interface)
+                
+                # Display results
+                if 'error' in result:
+                    self.console.print(f"[red]Error: {result['error']}[/red]")
+                else:
+                    self.console.print("[green]ARP Spoofing Started:[/green]")
+                    self.console.print(f"Target: {result['target']}")
+                    self.console.print(f"Gateway: {result['gateway']}")
+                    self.console.print(f"Interface: {result['interface']}")
+                    
+                    # Ask if user wants to stop ARP spoofing
+                    stop = Prompt.ask("[cyan]Stop ARP Spoofing?[/cyan]", choices=["y", "n"], default="y")
+                    if stop.lower() == 'y':
+                        stop_result = self.network_attacks.stop_arp_spoof()
+                        if 'error' in stop_result:
+                            self.console.print(f"[red]Error: {stop_result['error']}[/red]")
+                        else:
+                            self.console.print("[green]ARP Spoofing Stopped[/green]")
+                
+                input("\nPress Enter to continue...")
+            else:
+                self.console.print("[red]Invalid choice. Please try again.[/red]")
+                input("\nPress Enter to continue...")
                 
     def manage_tools_menu(self):
         """Kali tools management menu"""
@@ -649,6 +962,8 @@ class Menu:
                     self.forensics_menu()
                 elif choice == "9":
                     self.reporting_menu()
+                elif choice == "10":
+                    self.network_attacks_menu()
                 elif choice.upper() == "T":
                     self.manage_tools_menu()
                 elif choice == "0":

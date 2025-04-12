@@ -14,6 +14,43 @@ class PasswordAttacks:
     def __init__(self, config: Dict):
         self.config = config
         self.tools = config.get('password_attacks', {})
+        self.required_tools = [
+            # Brute Force & Dictionary Attacks
+            'john', 'hydra', 'medusa', 'ncrack', 
+            
+            # Password Recovery
+            'hashcat', 'rainbowcrack', 'ophcrack', 
+            
+            # Wordlist and Dictionary Tools
+            'crunch', 'wordlists', 'cupp', 
+            
+            # Network Password Tools
+            'crowbar', 'thc-hydra', 'patator', 
+            
+            # Web Password Tools
+            'brutespray', 'webscarab', 
+            
+            # Additional Tools
+            'fcrackzip', 'chntpw', 'samdump2'
+        ]
+        self._check_required_tools()
+
+    def _check_required_tools(self):
+        """Check required password attack tools"""
+        missing_tools = []
+        
+        for tool in self.required_tools:
+            try:
+                result = subprocess.run(['which', tool], capture_output=True, text=True)
+                if result.returncode != 0:
+                    missing_tools.append(tool)
+            except Exception:
+                missing_tools.append(tool)
+        
+        if missing_tools:
+            print(f"[yellow]Missing password attack tools: {', '.join(missing_tools)}[/yellow]")
+            print("[yellow]Some password cracking features may be limited.[/yellow]")
+            print("[yellow]Run the tool installer from the main menu to install missing tools.[/yellow]")
 
     def run_hashcat(
         self,

@@ -13,8 +13,60 @@ logger = logging.getLogger('HackFusion')
 
 class Forensics:
     def __init__(self, config: Dict):
+        """Initialize forensics tools and configurations"""
         self.config = config
-        self.tools = config.get('forensics', {})
+        self.tools = {
+            # Disk Forensics
+            'dc3dd': {
+                'enabled': True,
+                'description': 'Forensic disk duplicator'
+            },
+            'guymager': {
+                'enabled': True,
+                'description': 'Disk imaging tool'
+            },
+            
+            # Memory Forensics
+            'volatility': {
+                'enabled': True,
+                'description': 'Memory forensics framework'
+            },
+            
+            # File Recovery
+            'testdisk': {
+                'enabled': True,
+                'description': 'Tool for recovering lost partitions'
+            },
+            'foremost': {
+                'enabled': True,
+                'description': 'File recovery tool'
+            },
+            
+            # Additional Forensics Tools
+            'autopsy': {
+                'enabled': True,
+                'description': 'Digital forensics platform'
+            },
+            'sleuthkit': {
+                'enabled': True,
+                'description': 'Forensic toolkit for analyzing disk images'
+            },
+            'bulk_extractor': {
+                'enabled': True,
+                'description': 'Forensic data carving tool'
+            },
+            'scalpel': {
+                'enabled': True,
+                'description': 'File carving tool'
+            },
+            'photorec': {
+                'enabled': True,
+                'description': 'File recovery software'
+            }
+        }
+        
+        # Check tool availability
+        self._check_required_tools()
 
     def analyze_memory_dump(
         self,
@@ -233,3 +285,10 @@ class Forensics:
                 results[hive] = {'error': str(e)}
 
         return results
+
+    def _check_required_tools(self):
+        """Check availability of required forensics tools"""
+        required_tools = ['dc3dd', 'guymager', 'volatility', 'testdisk', 'foremost', 'autopsy', 'sleuthkit', 'bulk_extractor', 'scalpel', 'photorec']
+        for tool in required_tools:
+            if not self.tools.get(tool, {}).get('enabled'):
+                logger.warning(f"Tool {tool} is not enabled")

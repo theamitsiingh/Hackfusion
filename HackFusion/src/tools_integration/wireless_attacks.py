@@ -7,6 +7,55 @@ from typing import Dict, Any
 class WirelessAttacks:
     """Wireless attacks tools"""
     
+    def __init__(self):
+        """Initialize wireless attack tools"""
+        self.required_tools = [
+            # WiFi Cracking
+            'aircrack-ng', 'reaver', 'wifite', 'bully', 
+            'fern-wifi-cracker', 'pixiewps', 'cowpatty', 
+            'asleap', 'hashcat', 'john', 'wireshark',
+            
+            # Packet Injection
+            'mdk3', 'kismet', 'aireplay-ng', 'airbase-ng', 
+            'hostapd', 'wifi-pineapple', 'wifi-honey',
+            
+            # Wireless Network Detection
+            'wireshark', 'tcpdump', 'netdiscover', 'wavemon', 
+            'airmon-ng', 'airodump-ng', 'wash', 'horst',
+            
+            # Bluetooth Tools
+            'bluez', 'bluemaho', 'btscanner', 'bluesnarfer', 
+            'bluediving', 'hcitool', 'rfkill', 'blueborne',
+            
+            # GPS and Location Tools
+            'gpsd', 'kismet-gps', 'gpx', 'gpsbabel', 
+            
+            # Advanced Wireless Tools
+            'aircrack-ng', 'wifite', 'bully', 'reaver', 
+            'pixiewps', 'wifi-pineapple', 'hostapd', 
+            'dnsmasq', 'airbase-ng', 'airodump-ng', 
+            'aireplay-ng', 'mdk3', 'wash', 'hcitool', 
+            'rfkill', 'macchanger'
+        ]
+        self._check_required_tools()
+        
+    def _check_required_tools(self):
+        """Check required wireless attack tools"""
+        missing_tools = []
+        
+        for tool in self.required_tools:
+            try:
+                result = subprocess.run(['which', tool], capture_output=True, text=True)
+                if result.returncode != 0:
+                    missing_tools.append(tool)
+            except Exception:
+                missing_tools.append(tool)
+        
+        if missing_tools:
+            print(f"[yellow]Missing wireless attack tools: {', '.join(missing_tools)}[/yellow]")
+            print("[yellow]Some wireless attack features may be limited.[/yellow]")
+            print("[yellow]Run the tool installer from the main menu to install missing tools.[/yellow]")
+            
     def run_wifi_scan(self, interface: str = 'wlan0') -> Dict[str, Any]:
         """Run wireless network scan"""
         results = {}
