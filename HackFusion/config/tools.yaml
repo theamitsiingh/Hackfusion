@@ -1,0 +1,81 @@
+# Tools configuration for HackFusion
+
+information_gathering:
+  enabled: true
+  nmap:
+    enabled: true
+    default_args: "-sV -sC"
+  whois:
+    enabled: true
+  dig:
+    enabled: true
+
+vulnerability_analysis:
+  enabled: true
+  nikto:
+    enabled: true
+  sqlmap:
+    enabled: true
+    risk_level: 1
+    threads: 4
+
+web_application:
+  enabled: true
+  burpsuite:
+    enabled: true
+    api_port: 8090
+  zap:
+    enabled: true
+    api_key: ""
+
+database_assessment:
+  enabled: true
+  sqlmap:
+    enabled: true
+    risk_level: 1
+  nosqlmap:
+    enabled: true
+
+password_attacks:
+  enabled: true
+  hashcat:
+    enabled: true
+    workload: 2
+  john:
+    enabled: true
+
+wireless_security:
+  enabled: true
+  aircrack-ng:
+    enabled: true
+  wifite:
+    enabled: true
+
+reverse_engineering:
+  enabled: true
+  ghidra:
+    enabled: true
+  radare2:
+    enabled: true
+
+exploitation:
+  enabled: true
+  metasploit:
+    enabled: true
+  exploitdb:
+    enabled: true
+
+forensics:
+  enabled: true
+  volatility:
+    enabled: true
+  autopsy:
+    enabled: true
+
+reporting:
+  enabled: true
+  templates:
+    default: "templates/default_report.html"
+  output_formats:
+    - html
+    - pdf
