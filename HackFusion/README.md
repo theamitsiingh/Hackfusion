@@ -1,12 +1,16 @@
-# HackFusion - Advanced Cybersecurity Toolkit
+# HackFusion - Advanced AI-Powered Cybersecurity Toolkit
 
-HackFusion is an AI-powered cybersecurity toolkit that helps automate and streamline various security testing tasks.
+<p align="center">
+  <img src="assets/logo.svg" alt="HackFusion Logo" width="200"/>
+</p>
+
+HackFusion is a comprehensive, AI-powered cybersecurity toolkit that integrates advanced automation, machine learning, and state-of-the-art security tools to streamline penetration testing, vulnerability assessment, and security analysis tasks.
 
 ## Installation in Kali Linux
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/HackFusion.git
+git clone https://github.com/theamitsiingh/hackfusion.git
 cd HackFusion
 ```
 
@@ -48,32 +52,72 @@ sudo apt install -y python3-pip python3-venv nmap whois
 ## Directory Structure
 ```
 HackFusion/
+├── assets/
+│   ├── ascii_art/
+│   ├── logo.svg
+│   └── sounds/
 ├── config/
 │   └── tools.yaml
+├── docs/
 ├── src/
 │   ├── main.py
 │   ├── menu.py
 │   ├── ai_assistant.py
-│   └── tools_integration/
-│       ├── information_gathering.py
-│       ├── vulnerability_analysis.py
-│       └── ...
+│   ├── error_management/
+│   │   ├── __init__.py
+│   │   └── error_logger.py
+│   ├── tools_integration/
+│   │   ├── information_gathering.py
+│   │   ├── vulnerability_analysis.py
+│   │   ├── network_attacks.py
+│   │   ├── web_application.py
+│   │   ├── wireless_attacks.py
+│   │   ├── password_attacks.py
+│   │   ├── reverse_engineering.py
+│   │   ├── forensics.py
+│   │   └── exploitation.py
+│   └── utils/
+│       ├── kali_tools.py
+│       ├── logging_config.py
+│       ├── tool_decorators.py
+│       └── config_loader.py
+├── templates/
+├── tests/
 ├── reports/
 ├── requirements.txt
 └── README.md
 ```
 
-## Features
-- 🤖 AI-powered task automation
-- 🔍 Information gathering
-- 🎯 Vulnerability analysis
-- 🌐 Web application testing
-- 📡 Wireless network testing
-- 🔑 Password attacks
-- 🔧 Reverse engineering tools
-- ⚔️ Exploitation tools
-- 🔎 Digital forensics
-- 📊 Automated report generation
+## Key Features
+- 🧠 Advanced AI Integration
+  - Natural language processing for command interpretation
+  - Intelligent tool selection and automation
+  - Adaptive learning from previous scans
+
+- 🛡️ Comprehensive Security Testing
+  - 🔍 Advanced information gathering
+  - 🎯 Intelligent vulnerability analysis
+  - 🌐 Dynamic web application testing
+- 🔧 Specialized Tools Integration
+  - 📡 Advanced wireless network testing
+  - 🔑 Enhanced password attacks and cracking
+  - 🔬 Sophisticated reverse engineering
+  - ⚔️ Targeted exploitation frameworks
+  - 🔎 Advanced digital forensics
+  - 🌐 Network attack simulations
+
+- 📊 Professional Reporting
+  - Automated report generation
+  - Detailed vulnerability documentation
+  - Custom templates and formats
+  - Executive summaries and technical details
+
+- 🛠️ Enhanced Features
+  - Error management and logging
+  - Tool execution decorators
+  - Configurable logging system
+  - Modular architecture
+  - Extensive test coverage
 
 ## Usage
 1. Start HackFusion:
