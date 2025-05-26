@@ -1,7 +1,7 @@
 # HackFusion - Advanced AI-Powered Cybersecurity Toolkit
 
 <p align="center">
-  <img src="assets/logo.svg" alt="HackFusion Logo" width="200"/>
+  <img src="HackFusion/assets/logo.svg" alt="HackFusion Logo" width="200"/>
 </p>
 
 HackFusion is a comprehensive, AI-powered cybersecurity toolkit that integrates advanced automation, machine learning, and state-of-the-art security tools to streamline penetration testing, vulnerability assessment, and security analysis tasks.
